@@ -483,13 +483,6 @@ on property:ro.debug_level=0x4f4c
 on property:ro.debuggable=1
     write /sys/module/kgdboc/parameters/kgdboc ttyFIQ1
     write /sys/module/fiq_debugger/parameters/kgdb_enable 1
-# SecEDS
-service TvoutService_C /system/bin/bintvoutservice
-     class main
-     user system
-     group graphics
-on property:ro.SecEDS.enable=false
-    stop TvoutService_C
 
 # GPS
 service gpsd /system/bin/gpsd -c /system/etc/gps.xml
@@ -524,13 +517,6 @@ service scranton_RD /system/bin/scranton_RD
 on property:sys.mobicoredaemon.enable=true
     start scranton_RD
 
-# Secure Storage startup
-service secure_storage /system/bin/secure_storage_daemon
-    class core
-    user system
-    group system
-    disabled
-
 on property:ro.securestorage.support=true
     mkdir /dev/.secure_storage
     chmod 0711 /dev/.secure_storage
@@ -560,9 +546,3 @@ on property:persist.sys.storage_preload=1
 
 on property:persist.sys.storage_preload=0
     start umount_service
-
-service swapon /sbin/sswap -s
-    class core
-    user root
-    group root
-    oneshot
