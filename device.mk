@@ -171,10 +171,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     SamsungServiceMode
 
-# Sensors
-PRODUCT_PACKAGES += \
-    sensors.universal5420
-
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/PARAM.ini:system/etc/PARAM.ini \
     $(LOCAL_PATH)/configs/PDC.ini:system/etc/PDC.ini
