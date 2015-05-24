@@ -4,33 +4,30 @@ vendor/firmware/srp_data.bin
 vendor/firmware/srp_vliw.bin
 
 # Bluetooth
-vendor/firmware/bcm4350.hcd
+vendor/firmware/bcm4350_V0301.0609.hcd
 
 # Camera
-lib/hw/camera.vendor.universal5420.so
+lib/hw/camera.universal5420.so:camera.vendor.universal5420.so
 lib/libak09911c.so
-lib/libarcsoft_flawlessface.so
-lib/libarcsoft_nighthawk.so
-lib/libarcsoft_night_shot.so
+lib/libarcsoft_flawlessface2.so
+lib/libarcsoft_night_shot_ex.so
 lib/libarcsoft_panorama_burstcapture.so
-lib/libarcsoft_picaction_manual.so
 lib/libarcsoft_picaction.so
 lib/libarcsoft_sensorndk.so
-lib/libarcsoft_skin_soften.so
 lib/libexynoscamera.so
-lib/libliveframework.so
+#lib/libliveframework.so
 lib/libsecnativefeature.so
 lib/libvdis.so
 
 # DRM
 lib/libstagefright_hdcp.so
-vendor/lib/libdrmdecrypt.so
-vendor/lib/liboemcrypto.so
+lib/libdrmdecrypt.so
+lib/liboemcrypto.so
 vendor/lib/libwvdrm_L1.so
 vendor/lib/libwvm.so
-vendor/lib/libWVphoneAPI.so
+#vendor/lib/libWVphoneAPI.so
 vendor/lib/libWVStreamControlAPI_L1.so
-vendor/lib/drm/libdrmwvmplugin.so
+lib/drm/libdrmwvmplugin.so
 vendor/lib/mediadrm/libdrmclearkeyplugin.so
 vendor/lib/mediadrm/libwvdrmengine.so
 
@@ -64,14 +61,19 @@ app/mcRegistry/ffffffff000000000000000000000007.tlbin
 app/mcRegistry/ffffffff000000000000000000000008.tlbin
 app/mcRegistry/ffffffff000000000000000000000009.tlbin
 app/mcRegistry/ffffffff00000000000000000000000a.tlbin
-app/mcRegistry/ffffffff00000000000000000000000b.tlbin
 app/mcRegistry/ffffffff00000000000000000000000c.tlbin
 app/mcRegistry/ffffffff00000000000000000000000d.tlbin
+app/mcRegistry/ffffffff00000000000000000000000e.tlbin
 app/mcRegistry/ffffffff00000000000000000000000f.tlbin
 app/mcRegistry/ffffffff000000000000000000000010.tlbin
 app/mcRegistry/ffffffff000000000000000000000011.tlbin
+app/mcRegistry/ffffffff000000000000000000000012.tlbin
+app/mcRegistry/ffffffff000000000000000000000013.tlbin
+app/mcRegistry/ffffffff000000000000000000000017.tlbin
+app/mcRegistry/ffffffff000000000000000000000018.tlbin
 app/mcRegistry/ffffffffd00000000000000000000004.tlbin
 app/mcRegistry/ffffffffd0000000000000000000000a.tlbin
+app/mcRegistry/ffffffffd0000000000000000000000e.tlbin
 bin/scranton_RD
 
 # Sensors
@@ -97,5 +99,4 @@ usr/keylayout/gpio-keys.kl
 # Radio
 lib/libril.so
 lib/libsec-ril.so
-bin/cbd
 bin/rild
