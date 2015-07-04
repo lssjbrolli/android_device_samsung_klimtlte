@@ -196,6 +196,10 @@ PRODUCT_PACKAGES += \
 # Charger
 PRODUCT_PACKAGES += \
     charger_res_images
+    
+# Memtrack
+PRODUCT_PACKAGES += \
+    memtrack.exynos5
 
 # CPU producer to CPU consumer not supported
 PRODUCT_PROPERTY_OVERRIDES += \
