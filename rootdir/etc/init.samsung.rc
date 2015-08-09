@@ -4,7 +4,7 @@
 #
 
 on post-fs-data
-# SA, System SW, SAMSUNG create log directory
+    # SA, System SW, SAMSUNG create log directory
     mkdir /data/log 0775 system log
     chown system log /data/log
     mkdir /data/anr 0775 system system
@@ -14,10 +14,6 @@ on post-fs-data
     restorecon /data/log
     restorecon /data/anr
 
-#drm permission
-    mkdir /efs/drm 0774 drm system
-
-# [ SEC_MM_DRM
     # sdrm
     mkdir /efs/drm 0774 drm system
     mkdir /efs/drm/sdrm 0774 drm system
