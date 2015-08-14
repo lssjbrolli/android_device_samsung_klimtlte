@@ -327,6 +327,9 @@ on boot
     rm /data/smd_started
     rm /data/sv_cno.info
     
+    # Prevents permission denied error for telephony
+    chmod 0644 /proc/cmdline
+    
 on fs
 
     mount_all /fstab.universal5420

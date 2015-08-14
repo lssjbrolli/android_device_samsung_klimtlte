@@ -183,5 +183,9 @@ WIFI_DRIVER_FW_PATH_AP           := "/system/etc/wifi/bcmdhd_apsta.bin"
 # Radio
 BOARD_RIL_CLASS := ../../../device/samsung/klimtlte/ril
 
+# RIL
+BOARD_PROVIDES_LIBRIL := true
+BOARD_MODEM_TYPE := xmm6262
+
 # inherit from the proprietary version
 -include vendor/samsung/klimtlte/BoardConfigVendor.mk

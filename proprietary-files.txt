@@ -100,3 +100,11 @@ usr/keylayout/gpio-keys.kl
 lib/libril.so
 lib/libsec-ril.so
 bin/rild
+bin/at_distributor
+bin/ddexe
+bin/connfwexe
+bin/mlexe
+bin/smdexe
+lib/libfactoryutil.so
+lib/libomission_avoidance.so
+lib/libatparser.so

@@ -170,6 +170,11 @@ PRODUCT_PACKAGES += \
 # Samsung Service Mode    
 PRODUCT_PACKAGES += \
     SamsungServiceMode
+    
+# RIL
+PRODUCT_PACKAGES += \
+    libsamsung-ipc \
+    libsamsung-ril
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/PARAM.ini:system/etc/PARAM.ini \
