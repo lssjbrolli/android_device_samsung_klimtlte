@@ -30,9 +30,6 @@ TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_CPU_SMP := true
 
-# Audio
-BOARD_USES_LIBMEDIA_WITH_AUDIOPARAMETER := true
-
 # Bionic
 TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
 
@@ -61,8 +58,8 @@ COMMON_GLOBAL_CFLAGS += -DFORCE_SCREENSHOT_CPU_PATH
 # Kernel
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_PAGESIZE := 2048
-TARGET_KERNEL_CONFIG := klimtlte_00_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/klimtlte
+TARGET_KERNEL_CONFIG := klimtlte_01_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/klimtwifi
 # TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.6
 # KERNEL_TOOLCHAIN := /home/cmbuild/android/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin
 
@@ -181,11 +178,11 @@ WIFI_DRIVER_FW_PATH_STA          := "/system/etc/wifi/bcmdhd_sta.bin"
 WIFI_DRIVER_FW_PATH_AP           := "/system/etc/wifi/bcmdhd_apsta.bin"
 
 # Radio
-BOARD_RIL_CLASS := ../../../device/samsung/klimtlte/ril
+#BOARD_RIL_CLASS := ../../../device/samsung/klimtlte/ril
 
 # RIL
-BOARD_PROVIDES_LIBRIL := true
-BOARD_MODEM_TYPE := xmm6262
+#BOARD_PROVIDES_LIBRIL := true
+#BOARD_MODEM_TYPE := xmm6262
 
 # inherit from the proprietary version
 -include vendor/samsung/klimtlte/BoardConfigVendor.mk

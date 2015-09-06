@@ -23,12 +23,8 @@ lib/libvdis.so
 lib/libstagefright_hdcp.so
 lib/libdrmdecrypt.so
 lib/liboemcrypto.so
-vendor/lib/libwvdrm_L1.so
-vendor/lib/libwvm.so
 #vendor/lib/libWVphoneAPI.so
-vendor/lib/libWVStreamControlAPI_L1.so
 lib/drm/libdrmwvmplugin.so
-vendor/lib/mediadrm/libdrmclearkeyplugin.so
 vendor/lib/mediadrm/libwvdrmengine.so
 
 # Graphics
@@ -82,6 +78,7 @@ lib/hw/sensors.universal5420.so
 # Widevine
 vendor/lib/libwvm.so
 vendor/lib/libWVStreamControlAPI_L1.so
+vendor/lib/libwvdrm_L1.so
 
 # Wifi
 etc/wifi/bcmdhd_apsta.bin
@@ -95,16 +92,3 @@ etc/wifi/nvram_net.txt
 # Input
 usr/idc/Synaptics_HID_TouchPad.idc
 usr/keylayout/gpio-keys.kl
-
-# Radio
-lib/libril.so
-lib/libsec-ril.so
-bin/rild
-bin/at_distributor
-bin/ddexe
-bin/connfwexe
-bin/mlexe
-bin/smdexe
-lib/libfactoryutil.so
-lib/libomission_avoidance.so
-lib/libatparser.so

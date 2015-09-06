@@ -140,7 +140,6 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
     frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
-    frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
     frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml
 
@@ -158,11 +157,6 @@ PRODUCT_PACKAGES += \
     lpm.rc \
     ueventd.universal5420.rc
 
-PRODUCT_PACKAGES += \
-    cbd \
-    libsecril-client \
-    libsecril-client-sap
-
 # Recovery
 PRODUCT_PACKAGES += \
     init.recovery.universal5420.rc
@@ -174,7 +168,10 @@ PRODUCT_PACKAGES += \
 # RIL
 PRODUCT_PACKAGES += \
     libsamsung-ipc \
-    libsamsung-ril
+    libsamsung-ril \
+    rild \
+    libsecril-client \
+    libsecril-client-sap
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/PARAM.ini:system/etc/PARAM.ini \
