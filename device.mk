@@ -158,11 +158,6 @@ PRODUCT_PACKAGES += \
     lpm.rc \
     ueventd.universal5420.rc
 
-PRODUCT_PACKAGES += \
-    cbd \
-    libsecril-client \
-    libsecril-client-sap
-
 # Recovery
 PRODUCT_PACKAGES += \
     init.recovery.universal5420.rc
@@ -174,7 +169,10 @@ PRODUCT_PACKAGES += \
 # RIL
 PRODUCT_PACKAGES += \
     libsamsung-ipc \
-    libsamsung-ril
+    libsamsung-ril \
+    rild \
+    libsecril-client \
+    libsecril-client-sap
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/PARAM.ini:system/etc/PARAM.ini \
