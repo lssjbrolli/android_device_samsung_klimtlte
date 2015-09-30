@@ -81,4 +81,5 @@
 /dev/ttyS0                0660   radio      system
 /dev/mbin0                0660   radio      system
 /dev/umts*                0660   radio      system
+/dev/link_pm              0660   radio      system
 /dev/block/mmcblk0p13     0660   radio      system

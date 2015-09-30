@@ -1,4 +1,4 @@
-# Copyright (C) 2013 The CyanogenMod Project
+# Copyright (C) 2012 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,27 +14,24 @@
 
 LOCAL_PATH := $(call my-dir)
 
-# Audio HAL
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := audio.primary.$(TARGET_BOOTLOADER_BOARD_NAME)
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
-LOCAL_MODULE_TAGS := optional
-
-LOCAL_SRC_FILES := audio_hw.c ril_interface.c
-
+LOCAL_SRC_FILES := \
+	audio_hw.c
 LOCAL_C_INCLUDES += \
 	external/tinyalsa/include \
 	hardware/samsung_slsi/exynos5/include \
-	$(call include-path-for, audio-effects) \
+	device/samsung/klimtlte/voicefx \
 	$(call include-path-for, audio-utils) \
 	$(call include-path-for, audio-route)
-
-LOCAL_SHARED_LIBRARIES := liblog libcutils libtinyalsa libaudioutils libdl \
+LOCAL_CFLAGS := -Wno-unused-parameter
+LOCAL_SHARED_LIBRARIES := liblog libcutils libtinyalsa libaudioutils \
 	libaudience_voicefx libaudioroute
+LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)
-
 
 # Audience voice preprocessing library
 include $(CLEAR_VARS)
@@ -42,7 +39,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libaudience_voicefx
 LOCAL_MODULE_TAGS := optional
 
-LOCAL_SRC_FILES := eS325VoiceProcessing.cpp
+LOCAL_SRC_FILES:= eS325VoiceProcessing.cpp
 
 LOCAL_C_INCLUDES += \
 	$(call include-path-for, audio-effects)

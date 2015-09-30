@@ -17,7 +17,7 @@
 #include <errno.h>
 #include <fcntl.h>
 
-#define LOG_TAG "eS325VoiceProcessing"
+#define LOG_TAG "eS305VoiceProcessing"
 //#define LOG_NDEBUG 0
 #include <cutils/log.h>
 
@@ -109,42 +109,39 @@ int Adnc_ReevaluateUsageInt_l(audio_io_handle_t);
 int Adnc_SleepInt_l();
 
 //------------------------------------------------------------------------------
-// eS325 control
+// eS305 control
 //------------------------------------------------------------------------------
-/* TODO: figure out how to use VEQ mode */
-#define ES325_SYSFS_PATH "/sys/class/2mic/es325/"
-#define ES325_VOICE_PROCESSING_PATH ES325_SYSFS_PATH "voice_processing"
-#define ES325_VEQ_PATH              ES325_SYSFS_PATH "veq"
-#define ES325_PRESET_PATH           ES325_SYSFS_PATH "preset"
-#define ES325_TX_NS_LEVEL_PATH      ES325_SYSFS_PATH "tx_ns_level"
-#define ES325_TX_AGC_ENABLE_PATH    ES325_SYSFS_PATH "tx_agc_enable"
-#define ES325_AEC_ENABLE_PATH       ES325_SYSFS_PATH "aec_enable"
-#define ES325_SLEEP_PATH            ES325_SYSFS_PATH "sleep"
+#define ES305_SYSFS_PATH "/sys/class/i2c-dev/i2c-4/device/4-003e/"
+#define ES305_VOICE_PROCESSING_PATH ES305_SYSFS_PATH "voice_processing"
+#define ES305_PRESET_PATH           ES305_SYSFS_PATH "preset"
+#define ES305_TX_NS_LEVEL_PATH      ES305_SYSFS_PATH "tx_ns_level"
+#define ES305_TX_AGC_ENABLE_PATH    ES305_SYSFS_PATH "tx_agc_enable"
+#define ES305_AEC_ENABLE_PATH       ES305_SYSFS_PATH "aec_enable"
+#define ES305_SLEEP_PATH            ES305_SYSFS_PATH "sleep"
 
-enum eS325_controls {
-    ES325_CTRL_VOICE_PROCESSING = 0,
-    ES325_CTRL_VEQ,
-    ES325_CTRL_PRESET,
-    ES325_CTRL_TX_NS_LEVEL,
-    ES325_CTRL_TX_AGC_ENABLE,
-    ES325_CTRL_AEC_ENABLE,
-    ES325_CTRL_SLEEP,
-    ES325_NUM_CTRL
+enum eS305_controls {
+    ES305_CTRL_VOICE_PROCESSING = 0,
+    ES305_CTRL_PRESET,
+    ES305_CTRL_TX_NS_LEVEL,
+    ES305_CTRL_TX_AGC_ENABLE,
+    ES305_CTRL_AEC_ENABLE,
+    ES305_CTRL_SLEEP,
+    ES305_NUM_CTRL
 };
 
-struct eS325_ctrl_s {
-    int fd[ES325_NUM_CTRL];
+struct eS305_ctrl_s {
+    int fd[ES305_NUM_CTRL];
     int current_preset;
     int requested_preset;
     int ioHandle;
 };
-typedef struct eS325_ctrl_s eS325_ctrl_t;
+typedef struct eS305_ctrl_s eS305_ctrl_t;
 
-static eS325_ctrl_t eS325_ctrl = {
+static eS305_ctrl_t eS305_ctrl = {
         { -1/*vp*/, -1/*preset*/, -1/*ns*/, -1/*agc*/, -1/*aec*/, -1/*sleep*/},
-        ES325_PRESET_OFF  /*current_preset*/,
-        ES325_PRESET_INIT /*requested_preset, an invalid preset, different from current_preset*/,
-        ES325_IO_HANDLE_NONE
+        ES305_PRESET_OFF  /*current_preset*/,
+        ES305_PRESET_INIT /*requested_preset, an invalid preset, different from current_preset*/,
+        ES305_IO_HANDLE_NONE
 };
 
 //------------------------------------------------------------------------------
@@ -580,8 +577,8 @@ int AdncSession_Init_l(adnc_pfx_session_t *session)
 
     session->state = PFX_SESSION_STATE_INIT;
     session->audioSource = AUDIO_SOURCE_DEFAULT;
-    //session->audioSessionId = ES325_SESSION_ID_NONE;  // FIXME not used delete?
-    session->ioHandle = ES325_IO_HANDLE_NONE;
+    //session->audioSessionId = ES305_SESSION_ID_NONE;  // FIXME not used delete?
+    session->ioHandle = ES305_IO_HANDLE_NONE;
     session->createdMsk = 0;
     session->activeMsk  = 0;
     // initialize each effect for this session context
@@ -636,7 +633,7 @@ void AdncSession_SetProcEnabled(adnc_pfx_session_t *session, uint32_t procId, bo
 {
     ALOGV("AdncSession_SetProcEnabled [noop] proc %d, enabled %d", procId, enabled);
     //no need to reevaluate session settings, if recording is currently ongoing, we'll reevaluate
-    //  through eS325_AddEffect()
+    //  through eS305_AddEffect()
 }
 
 int AdncSession_SetSource(adnc_pfx_session_t *session, audio_source_t source)
@@ -667,7 +664,7 @@ adnc_pfx_session_t *AdncBundle_GetSession_l(int32_t procId, int32_t sessionId, i
         }
     }
     for (i = 0; i < ADNC_PFX_NUM_SESSION; i++) {
-        if (sAdncSessions[i].ioHandle == ES325_IO_HANDLE_NONE) {
+        if (sAdncSessions[i].ioHandle == ES305_IO_HANDLE_NONE) {
             //sAdncSessions[i].audioSessionId = sessionId; // FIXME not used delete?
             sAdncSessions[i].ioHandle = ioId;
             return &sAdncSessions[i];
@@ -703,11 +700,11 @@ int AdncBundle_Release_l() {
 
     Adnc_SleepInt_l();
 
-    for (int i = 0 ; i < ES325_NUM_CTRL ; i++) {
-        if (eS325_ctrl.fd[i] >= 0) {
-            close(eS325_ctrl.fd[i]);
+    for (int i = 0 ; i < ES305_NUM_CTRL ; i++) {
+        if (eS305_ctrl.fd[i] >= 0) {
+            close(eS305_ctrl.fd[i]);
         }
-        eS325_ctrl.fd[i] = -1;
+        eS305_ctrl.fd[i] = -1;
     }
     return 0;
 }
@@ -989,7 +986,7 @@ int adnc_create(const effect_uuid_t *uuid,
     status = AdncSession_CreateEffect_l(session, procId, pInterface);
 
     if (status < 0 && session->createdMsk == 0) {
-        session->ioHandle = ES325_IO_HANDLE_NONE;
+        session->ioHandle = ES305_IO_HANDLE_NONE;
     }
 
 exit:
@@ -1071,25 +1068,25 @@ audio_effect_library_t AUDIO_EFFECT_LIBRARY_INFO_SYM = {
 };
 
 //-------------------------------------------------------
-// eS325 control interface
+// eS305 control interface
 //-------------------------------------------------------
 int Adnc_SetAutomaticGainControlInt_l(bool agc_on)
 {
     ALOGV("Adnc_SetAutomaticGainControlInt_l(%d)", agc_on);
 
-    if (eS325_ctrl.fd[ES325_CTRL_TX_AGC_ENABLE] < 0) {
-        ALOGV("  opening eS325 path for agc");
-        eS325_ctrl.fd[ES325_CTRL_TX_AGC_ENABLE] = open(ES325_TX_AGC_ENABLE_PATH, O_RDWR);
-        if (eS325_ctrl.fd[ES325_CTRL_TX_AGC_ENABLE] < 0) {
-            ALOGE("  Cannot open eS325 path for agc: %s", strerror(errno));
+    if (eS305_ctrl.fd[ES305_CTRL_TX_AGC_ENABLE] < 0) {
+        ALOGV("  opening eS305 path for agc");
+        eS305_ctrl.fd[ES305_CTRL_TX_AGC_ENABLE] = open(ES305_TX_AGC_ENABLE_PATH, O_RDWR);
+        if (eS305_ctrl.fd[ES305_CTRL_TX_AGC_ENABLE] < 0) {
+            ALOGE("  Cannot open eS305 path for agc: %s", strerror(errno));
             return -ENODEV;
         }
     }
 
     if (agc_on) {
-        write(eS325_ctrl.fd[ES325_CTRL_TX_AGC_ENABLE], ES325_AGC_ON, strlen(ES325_AGC_ON));
+        write(eS305_ctrl.fd[ES305_CTRL_TX_AGC_ENABLE], ES305_AGC_ON, strlen(ES305_AGC_ON));
     } else {
-        write(eS325_ctrl.fd[ES325_CTRL_TX_AGC_ENABLE], ES325_AGC_OFF, strlen(ES325_AGC_OFF));
+        write(eS305_ctrl.fd[ES305_CTRL_TX_AGC_ENABLE], ES305_AEC_OFF, strlen(ES305_AGC_OFF));
     }
     return 0;
 }
@@ -1098,19 +1095,19 @@ int Adnc_SetEchoCancellationInt_l(bool aec_on)
 {
     ALOGV("Adnc_SetEchoCancellationInt_l(%d)", aec_on);
 
-    if (eS325_ctrl.fd[ES325_CTRL_AEC_ENABLE] < 0) {
-        ALOGV("  opening eS325 path for aec");
-        eS325_ctrl.fd[ES325_CTRL_AEC_ENABLE] = open(ES325_AEC_ENABLE_PATH, O_RDWR);
-        if (eS325_ctrl.fd[ES325_CTRL_AEC_ENABLE] < 0) {
-            ALOGE("  Cannot open eS325 path for aec: %s", strerror(errno));
+    if (eS305_ctrl.fd[ES305_CTRL_AEC_ENABLE] < 0) {
+        ALOGV("  opening eS305 path for aec");
+        eS305_ctrl.fd[ES305_CTRL_AEC_ENABLE] = open(ES305_AEC_ENABLE_PATH, O_RDWR);
+        if (eS305_ctrl.fd[ES305_CTRL_AEC_ENABLE] < 0) {
+            ALOGE("  Cannot open eS305 path for aec: %s", strerror(errno));
             return -ENODEV;
         }
     }
 
     if (aec_on) {
-        write(eS325_ctrl.fd[ES325_CTRL_AEC_ENABLE], ES325_AEC_ON, strlen(ES325_AEC_ON));
+        write(eS305_ctrl.fd[ES305_CTRL_AEC_ENABLE], ES305_AEC_ON, strlen(ES305_AEC_ON));
     } else {
-        write(eS325_ctrl.fd[ES325_CTRL_AEC_ENABLE], ES325_AEC_OFF, strlen(ES325_AEC_OFF));
+        write(eS305_ctrl.fd[ES305_CTRL_AEC_ENABLE], ES305_AEC_OFF, strlen(ES305_AEC_OFF));
     }
     return 0;
 }
@@ -1119,80 +1116,62 @@ int Adnc_SetNoiseSuppressionInt_l(bool ns_on)
 {
     ALOGV("Adnc_SetNoiseSuppressionInt(%d)", ns_on);
 
-    if (eS325_ctrl.fd[ES325_CTRL_TX_NS_LEVEL] < 0) {
-        ALOGV("  opening eS325 path for ns");
-        eS325_ctrl.fd[ES325_CTRL_TX_NS_LEVEL] = open(ES325_TX_NS_LEVEL_PATH, O_RDWR);
-        if (eS325_ctrl.fd[ES325_CTRL_TX_NS_LEVEL] < 0) {
-            ALOGE("  Cannot open eS325 path for ns: %s", strerror(errno));
+    if (eS305_ctrl.fd[ES305_CTRL_TX_NS_LEVEL] < 0) {
+        ALOGV("  opening eS305 path for ns");
+        eS305_ctrl.fd[ES305_CTRL_TX_NS_LEVEL] = open(ES305_TX_NS_LEVEL_PATH, O_RDWR);
+        if (eS305_ctrl.fd[ES305_CTRL_TX_NS_LEVEL] < 0) {
+            ALOGE("  Cannot open eS305 path for ns: %s", strerror(errno));
             return -ENODEV;
         }
     }
 
     if (ns_on) {
-        if (eS325_ctrl.requested_preset == ES325_PRESET_ASRA_HANDHELD) {
-            ALOGV("  setting ns to %s", ES325_NS_VOICE_REC_HANDHELD_ON);
-            write(eS325_ctrl.fd[ES325_CTRL_TX_NS_LEVEL],
-                    ES325_NS_VOICE_REC_HANDHELD_ON, strlen(ES325_NS_VOICE_REC_HANDHELD_ON));
-        } else if ((eS325_ctrl.requested_preset == ES325_PRESET_ASRA_DESKTOP)
-                || (eS325_ctrl.requested_preset == ES325_PRESET_ASRA_HEADSET)) {
-            ALOGV("  setting ns to %s", ES325_NS_VOICE_REC_SINGLE_MIC_ON);
-            write(eS325_ctrl.fd[ES325_CTRL_TX_NS_LEVEL],
-                    ES325_NS_VOICE_REC_SINGLE_MIC_ON, strlen(ES325_NS_VOICE_REC_SINGLE_MIC_ON));
+        if (eS305_ctrl.requested_preset == ES305_PRESET_ASRA_HANDHELD) {
+            ALOGV("  setting ns to %s", ES305_NS_VOICE_REC_HANDHELD_ON);
+            write(eS305_ctrl.fd[ES305_CTRL_TX_NS_LEVEL],
+                    ES305_NS_VOICE_REC_HANDHELD_ON, strlen(ES305_NS_VOICE_REC_HANDHELD_ON));
+        } else if ((eS305_ctrl.requested_preset == ES305_PRESET_ASRA_DESKTOP)
+                || (eS305_ctrl.requested_preset == ES305_PRESET_ASRA_HEADSET)) {
+            ALOGV("  setting ns to %s", ES305_NS_VOICE_REC_SINGLE_MIC_ON);
+            write(eS305_ctrl.fd[ES305_CTRL_TX_NS_LEVEL],
+                    ES305_NS_VOICE_REC_SINGLE_MIC_ON, strlen(ES305_NS_VOICE_REC_SINGLE_MIC_ON));
         } else {
-            ALOGV("  setting ns to %s", ES325_NS_DEFAULT_ON);
-            write(eS325_ctrl.fd[ES325_CTRL_TX_NS_LEVEL],
-                    ES325_NS_DEFAULT_ON, strlen(ES325_NS_DEFAULT_ON));
+            ALOGV("  setting ns to %s", ES305_NS_DEFAULT_ON);
+            write(eS305_ctrl.fd[ES305_CTRL_TX_NS_LEVEL],
+                    ES305_NS_DEFAULT_ON, strlen(ES305_NS_DEFAULT_ON));
         }
     } else {
-        ALOGV("  setting ns to %s", ES325_NS_OFF);
-        write(eS325_ctrl.fd[ES325_CTRL_TX_NS_LEVEL], ES325_NS_OFF, strlen(ES325_NS_OFF));
+        ALOGV("  setting ns to %s", ES305_NS_OFF);
+        write(eS305_ctrl.fd[ES305_CTRL_TX_NS_LEVEL], ES305_NS_OFF, strlen(ES305_NS_OFF));
     }
     return 0;
 }
 
 int Adnc_SetVoiceProcessingInt_l(bool vp_on)
 {
-    if (eS325_ctrl.fd[ES325_CTRL_VOICE_PROCESSING] < 0) {
-        ALOGV("  opening eS325 path for VP");
-        eS325_ctrl.fd[ES325_CTRL_VOICE_PROCESSING] = open(ES325_VOICE_PROCESSING_PATH, O_RDWR);
-        if (eS325_ctrl.fd[ES325_CTRL_VOICE_PROCESSING] < 0) {
-            ALOGE("    cannot open eS325 path for VP: %s", strerror(errno));
+    if (eS305_ctrl.fd[ES305_CTRL_VOICE_PROCESSING] < 0) {
+        ALOGV("  opening eS305 path for VP");
+        eS305_ctrl.fd[ES305_CTRL_VOICE_PROCESSING] = open(ES305_VOICE_PROCESSING_PATH, O_RDWR);
+        if (eS305_ctrl.fd[ES305_CTRL_VOICE_PROCESSING] < 0) {
+            ALOGE("    cannot open eS305 path for VP: %s", strerror(errno));
             return -ENODEV;
         }
     }
     if (vp_on) {
-        write(eS325_ctrl.fd[ES325_CTRL_VOICE_PROCESSING], ES325_ON, strlen(ES325_ON));
+        write(eS305_ctrl.fd[ES305_CTRL_VOICE_PROCESSING], ES305_ON, strlen(ES305_ON));
     } else {
-        write(eS325_ctrl.fd[ES325_CTRL_VOICE_PROCESSING], ES325_OFF, strlen(ES325_OFF));
-    }
-    return 0;
-}
-
-int Adnc_SetVeqInt_l(bool veq_on)
-{
-    if (eS325_ctrl.fd[ES325_CTRL_VEQ] < 0) {
-        ALOGV("  opening eS325 path for VEQ");
-        eS325_ctrl.fd[ES325_CTRL_VEQ] = open(ES325_VEQ_PATH, O_RDWR);
-        if (eS325_ctrl.fd[ES325_CTRL_VEQ] < 0) {
-            ALOGE("    cannot open eS325 path for VEQ: %s", strerror(errno));
-            return -ENODEV;
-        }
-    }
-    if (veq_on) {
-        write(eS325_ctrl.fd[ES325_CTRL_VEQ], ES325_ON, strlen(ES325_ON));
-    } else {
-        write(eS325_ctrl.fd[ES325_CTRL_VEQ], ES325_OFF, strlen(ES325_OFF));
+        write(eS305_ctrl.fd[ES305_CTRL_VOICE_PROCESSING], ES305_OFF, strlen(ES305_OFF));
     }
     return 0;
 }
 
 /*
- * Put the eS325 to sleep
- * Post condition when no error: eS325_ctrl.current_preset == ES325_PRESET_OFF
+ * Put the eS305 to sleep
+ * Post condition when no error: eS305_ctrl.current_preset == ES305_PRESET_OFF
  */
 int Adnc_SleepInt_l()
 {
-    if (eS325_ctrl.current_preset == ES325_PRESET_OFF) {
+    if (eS305_ctrl.current_preset == ES305_PRESET_OFF) {
         return 0;
     }
 
@@ -1201,64 +1180,64 @@ int Adnc_SleepInt_l()
     Adnc_SetVoiceProcessingInt_l(false /*vp_on*/);
 
     ALOGV("  Adnc_SetSleepInt_l");
-    if (eS325_ctrl.fd[ES325_CTRL_SLEEP] < 0) {
-        ALOGV("  opening eS325 path for sleep");
-        eS325_ctrl.fd[ES325_CTRL_SLEEP] = open(ES325_SLEEP_PATH, O_RDWR);
-        if (eS325_ctrl.fd[ES325_CTRL_SLEEP] < 0) {
-            ALOGE("    cannot open eS325 path for sleep: %s", strerror(errno));
+    if (eS305_ctrl.fd[ES305_CTRL_SLEEP] < 0) {
+        ALOGV("  opening eS305 path for sleep");
+        eS305_ctrl.fd[ES305_CTRL_SLEEP] = open(ES305_SLEEP_PATH, O_RDWR);
+        if (eS305_ctrl.fd[ES305_CTRL_SLEEP] < 0) {
+            ALOGE("    cannot open eS305 path for sleep: %s", strerror(errno));
             return -ENODEV;
         }
     }
 
-    write(eS325_ctrl.fd[ES325_CTRL_SLEEP], ES325_ON, strlen(ES325_ON));
+    write(eS305_ctrl.fd[ES305_CTRL_SLEEP], ES305_ON, strlen(ES305_ON));
 
-    eS325_ctrl.current_preset = ES325_PRESET_OFF;
+    eS305_ctrl.current_preset = ES305_PRESET_OFF;
 
     return 0;
 }
 
 /*
- * Apply the eS325_ctrl.requested_preset preset after turning VP on
- * Post condition when no error: eS325_ctrl.current_preset == eS325_ctrl.requested_preset
+ * Apply the eS305_ctrl.requested_preset preset after turning VP on
+ * Post condition when no error: eS305_ctrl.current_preset == eS305_ctrl.requested_preset
  */
 int Adnc_ApplyPresetInt_l()
 {
     ALOGV("Adnc_ApplyPresetInt() current_preset=%d, requested_preset=%d",
-            eS325_ctrl.current_preset, eS325_ctrl.requested_preset);
+            eS305_ctrl.current_preset, eS305_ctrl.requested_preset);
 
-    if (eS325_ctrl.requested_preset == eS325_ctrl.current_preset) {
-        ALOGV("  nothing to do, preset %d is current", eS325_ctrl.requested_preset);
+    if (eS305_ctrl.requested_preset == eS305_ctrl.current_preset) {
+        ALOGV("  nothing to do, preset %d is current", eS305_ctrl.requested_preset);
         return 0;
     }
 
     // preset off implies going to sleep
-    if (eS325_ctrl.requested_preset == ES325_PRESET_OFF) {
+    if (eS305_ctrl.requested_preset == ES305_PRESET_OFF) {
         return Adnc_SleepInt_l();
     }
 
     // voice processing must be on before setting the preset
-    if ((eS325_ctrl.current_preset == ES325_PRESET_OFF)
-            || (eS325_ctrl.current_preset == ES325_PRESET_INIT)) {
+    if ((eS305_ctrl.current_preset == ES305_PRESET_OFF)
+            || (eS305_ctrl.current_preset == ES305_PRESET_INIT)) {
         const int status = Adnc_SetVoiceProcessingInt_l(true /*vp_on*/);
         if (status != 0) {
             return status;
         }
     }
 
-    if (eS325_ctrl.fd[ES325_CTRL_PRESET] < 0) {
-        ALOGV("  opening eS325 path for PRESET");
-        eS325_ctrl.fd[ES325_CTRL_PRESET] = open(ES325_PRESET_PATH, O_RDWR);
+    if (eS305_ctrl.fd[ES305_CTRL_PRESET] < 0) {
+        ALOGV("  opening eS305 path for PRESET");
+        eS305_ctrl.fd[ES305_CTRL_PRESET] = open(ES305_PRESET_PATH, O_RDWR);
     }
-    if (eS325_ctrl.fd[ES325_CTRL_PRESET] < 0) {
-        ALOGE("  Cannot open eS325 path for PRESET: %s", strerror(errno));
+    if (eS305_ctrl.fd[ES305_CTRL_PRESET] < 0) {
+        ALOGE("  Cannot open eS305 path for PRESET: %s", strerror(errno));
         return -ENODEV;
     }
 
     char str[8];
-    sprintf(str, "%d", eS325_ctrl.requested_preset);
-    write(eS325_ctrl.fd[ES325_CTRL_PRESET], str, strlen(str));
+    sprintf(str, "%d", eS305_ctrl.requested_preset);
+    write(eS305_ctrl.fd[ES305_CTRL_PRESET], str, strlen(str));
 
-    eS325_ctrl.current_preset = eS325_ctrl.requested_preset;
+    eS305_ctrl.current_preset = eS305_ctrl.requested_preset;
 
     return 0;
 }
@@ -1273,7 +1252,7 @@ int Adnc_ApplySettingsFromSessionContextInt_l(adnc_pfx_session_t * session)
                   session->createdMsk, session->activeMsk, session->ioHandle);
     int status = 0;
 
-    if (session->ioHandle != eS325_ctrl.ioHandle) {
+    if (session->ioHandle != eS305_ctrl.ioHandle) {
         return status;
     }
 
@@ -1332,7 +1311,7 @@ int Adnc_ApplySettingsForHandleInt_l(audio_io_handle_t handle)
     int i;
 
     if (sAdncBundleInitStatus != 0) {
-        // This assumes that the default config of the eS325 after setting a preset
+        // This assumes that the default config of the eS305 after setting a preset
         //    is the correct configuration.
         ALOGV(" no effect settings to apply for IO handle %d, no effect bundle", handle);
         return status;
@@ -1351,15 +1330,15 @@ int Adnc_ApplySettingsForHandleInt_l(audio_io_handle_t handle)
 }
 
 /*
- * Reevaluate the usage of the eS325 based on the given IO handle.
+ * Reevaluate the usage of the eS305 based on the given IO handle.
  * Must be called with a lock on sAdncBundleLock
  */
 int Adnc_ReevaluateUsageInt_l(audio_io_handle_t handle)
 {
     ALOGV(" Adnc_ReevaluateUsageInt_l(handle=%d) current_preset=%d requested_preset=%d",
-            handle, eS325_ctrl.current_preset, eS325_ctrl.requested_preset);
+            handle, eS305_ctrl.current_preset, eS305_ctrl.requested_preset);
     int status = 0;
-    if ((eS325_ctrl.requested_preset == ES325_PRESET_OFF) || (handle == ES325_IO_HANDLE_NONE)) {
+    if ((eS305_ctrl.requested_preset == ES305_PRESET_OFF) || (handle == ES305_IO_HANDLE_NONE)) {
         status = Adnc_SleepInt_l();
     } else {
         const int sessionId = Adnc_SessionNumberForHandle_l(handle);
@@ -1382,12 +1361,12 @@ int Adnc_ReevaluateUsageInt_l(audio_io_handle_t handle)
 
 
 //-------------------------------------------------------
-// eS325 public control interface from HAL
+// eS305 public control interface from HAL
 //-------------------------------------------------------
-int eS325_UsePreset(int preset)
+int eS305_UsePreset(int preset)
 {
-    ALOGV("eS325_UsePreset(%d) current=%d handle=%d",
-            preset, eS325_ctrl.current_preset, eS325_ctrl.ioHandle);
+    ALOGV("eS305_UsePreset(%d) current=%d handle=%d",
+            preset, eS305_ctrl.current_preset, eS305_ctrl.ioHandle);
 
     int status = 0;
 
@@ -1397,17 +1376,17 @@ int eS325_UsePreset(int preset)
 
     // allow preset transition from any preset to any other during recording,
     //    except from one ASRA preset to another
-    if (eS325_ctrl.ioHandle != ES325_IO_HANDLE_NONE) {
-        switch(eS325_ctrl.current_preset) {
-        case ES325_PRESET_ASRA_HANDHELD:
-        case ES325_PRESET_ASRA_DESKTOP:
-        case ES325_PRESET_ASRA_HEADSET:
+    if (eS305_ctrl.ioHandle != ES305_IO_HANDLE_NONE) {
+        switch(eS305_ctrl.current_preset) {
+        case ES305_PRESET_ASRA_HANDHELD:
+        case ES305_PRESET_ASRA_DESKTOP:
+        case ES305_PRESET_ASRA_HEADSET:
             switch(preset) {
-            case ES325_PRESET_ASRA_HANDHELD:
-            case ES325_PRESET_ASRA_DESKTOP:
-            case ES325_PRESET_ASRA_HEADSET:
+            case ES305_PRESET_ASRA_HANDHELD:
+            case ES305_PRESET_ASRA_DESKTOP:
+            case ES305_PRESET_ASRA_HEADSET:
                 ALOGV("  not switching from ASRA preset %d to %d during voice recognition",
-                        eS325_ctrl.current_preset, preset);
+                        eS305_ctrl.current_preset, preset);
                 status = -EINVAL;
                 goto exit;
             default:
@@ -1421,7 +1400,7 @@ int eS325_UsePreset(int preset)
         }
     }
 
-    eS325_ctrl.requested_preset = preset;
+    eS305_ctrl.requested_preset = preset;
 
     status = AdncBundle_Init_l();
     if (status != 0) {
@@ -1429,7 +1408,7 @@ int eS325_UsePreset(int preset)
         goto exit;
     }
 
-    status = Adnc_ReevaluateUsageInt_l(eS325_ctrl.ioHandle);
+    status = Adnc_ReevaluateUsageInt_l(eS305_ctrl.ioHandle);
 
 exit:
     pthread_mutex_unlock(&sAdncBundleLock);
@@ -1437,31 +1416,9 @@ exit:
 }
 
 
-int eS325_SetVeq(bool enable)
+int eS305_SetActiveIoHandle(audio_io_handle_t handle)
 {
-    ALOGV("eS325_EnableVeq(%d)", enable);
-
-    int status;
-
-    pthread_mutex_lock(&sAdncBundleLock);
-
-    status = AdncBundle_Init_l();
-    if (status != 0) {
-        ALOGE(" error enabling VEQ, bundle failed to initialize");
-        goto exit;
-    }
-
-    status = Adnc_SetVeqInt_l(enable);
-
-exit:
-    pthread_mutex_unlock(&sAdncBundleLock);
-    return status;
-}
-
-
-int eS325_SetActiveIoHandle(audio_io_handle_t handle)
-{
-    ALOGV("eS325_SetActiveIoHandle(%d)", handle);
+    ALOGV("eS305_SetActiveIoHandle(%d)", handle);
 
     pthread_mutex_lock(&sAdncBundleLock);
 
@@ -1475,10 +1432,10 @@ int eS325_SetActiveIoHandle(audio_io_handle_t handle)
     status = Adnc_ReevaluateUsageInt_l(handle);
 
     if (status == 0) {
-        eS325_ctrl.ioHandle = handle;
+        eS305_ctrl.ioHandle = handle;
     } else {
         ALOGE("  failed to update for new handle %d (current preset = %d)",
-                handle, eS325_ctrl.current_preset);
+                handle, eS305_ctrl.current_preset);
     }
 
     pthread_mutex_unlock(&sAdncBundleLock);
@@ -1487,9 +1444,9 @@ int eS325_SetActiveIoHandle(audio_io_handle_t handle)
 }
 
 
-int eS325_AddEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
+int eS305_AddEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
 {
-    ALOGV("eS325_AddEffect(handle=%d)", handle);
+    ALOGV("eS305_AddEffect(handle=%d)", handle);
 
     pthread_mutex_lock(&sAdncBundleLock);
 
@@ -1501,7 +1458,7 @@ int eS325_AddEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
     }
 
     if (descr == NULL){
-        ALOGV(" eS325_AddEffect() ERROR effect descriptor is NULL");
+        ALOGV(" eS305_AddEffect() ERROR effect descriptor is NULL");
         pthread_mutex_unlock(&sAdncBundleLock);
         return -EINVAL;
     }
@@ -1509,7 +1466,7 @@ int eS325_AddEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
     uint32_t procId = Adnc_UuidToProcId(&descr->type);
 
     adnc_pfx_session_t * session = AdncBundle_GetSession_l(
-            procId, ES325_SESSION_ID_NONE, handle/*ioId*/);
+            procId, ES305_SESSION_ID_NONE, handle/*ioId*/);
 
     if (session != NULL) {
         // mark the effect as active
@@ -1525,9 +1482,9 @@ int eS325_AddEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
 }
 
 
-int eS325_RemoveEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
+int eS305_RemoveEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
 {
-    ALOGV("eS325_RemoveEffect()");
+    ALOGV("eS305_RemoveEffect()");
 
     pthread_mutex_lock(&sAdncBundleLock);
 
@@ -1539,7 +1496,7 @@ int eS325_RemoveEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
     }
 
     if (descr == NULL){
-        ALOGV(" eS325_AddEffect() ERROR effect descriptor is NULL");
+        ALOGV(" eS305_AddEffect() ERROR effect descriptor is NULL");
         pthread_mutex_unlock(&sAdncBundleLock);
         return -EINVAL;
     }
@@ -1547,7 +1504,7 @@ int eS325_RemoveEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
     uint32_t procId = Adnc_UuidToProcId(&descr->type);
 
     adnc_pfx_session_t * session = AdncBundle_GetSession_l(
-            procId, ES325_SESSION_ID_NONE, handle/*ioId*/);
+            procId, ES305_SESSION_ID_NONE, handle/*ioId*/);
 
     if (session != NULL) {
         // mark the effect as inactive
@@ -1563,8 +1520,8 @@ int eS325_RemoveEffect(effect_descriptor_t * descr, audio_io_handle_t handle)
 }
 
 
-int eS325_Release() {
-    ALOGV("eS325_Release()");
+int eS305_Release() {
+    ALOGV("eS305_Release()");
 
     pthread_mutex_lock(&sAdncBundleLock);
 

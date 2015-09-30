@@ -167,11 +167,8 @@ PRODUCT_PACKAGES += \
     
 # RIL
 PRODUCT_PACKAGES += \
-    libsamsung-ipc \
     libsamsung-ril \
-    rild \
-    libsecril-client \
-    libsecril-client-sap
+    libsrs-client
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/PARAM.ini:system/etc/PARAM.ini \
