@@ -7,7 +7,7 @@ vendor/firmware/srp_vliw.bin
 vendor/firmware/bcm4350_V0301.0609.hcd
 
 # Camera
-lib/hw/camera.universal5420.so:camera.vendor.universal5420.so
+lib/hw/camera.universal5420.so:lib/hw/camera.vendor.universal5420.so
 lib/libak09911c.so
 lib/libarcsoft_flawlessface2.so
 lib/libarcsoft_night_shot_ex.so
@@ -15,7 +15,6 @@ lib/libarcsoft_panorama_burstcapture.so
 lib/libarcsoft_picaction.so
 lib/libarcsoft_sensorndk.so
 lib/libexynoscamera.so
-#lib/libliveframework.so
 lib/libsecnativefeature.so
 lib/libvdis.so
 
@@ -23,14 +22,12 @@ lib/libvdis.so
 lib/libstagefright_hdcp.so
 lib/libdrmdecrypt.so
 lib/liboemcrypto.so
-#vendor/lib/libWVphoneAPI.so
 lib/drm/libdrmwvmplugin.so
 vendor/lib/mediadrm/libwvdrmengine.so
 
 # Graphics
 vendor/lib/egl/libGLES_mali.so
 vendor/lib/libmalicore.bc
-vendor/lib/libRSDriverArm.so
 
 # GPS
 bin/gpsd

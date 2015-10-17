@@ -54,7 +54,7 @@ PRODUCT_PACKAGES += \
     setup_fs
 
 # GPS
-PRODUCT_PACKAGES += \
+#PRODUCT_PACKAGES += \
     gps.universal5420
 
 # HW composer
@@ -102,7 +102,6 @@ PRODUCT_PACKAGES += \
     mcDriverDaemon
 
 # Network tools
-
 PRODUCT_PACKAGES += \
     libpcap \
     tcpdump

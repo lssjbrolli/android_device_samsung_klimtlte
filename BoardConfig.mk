@@ -30,8 +30,15 @@ TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_CPU_SMP := true
 
-# Bionic
-TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
+# Battery
+BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
+BOARD_BATTERY_DEVICE_NAME := battery
+BOARD_CHARGER_SHOW_PERCENTAGE := true
+
+# Bootloader
+TARGET_BOOTLOADER_BOARD_NAME := universal5420
+TARGET_NO_BOOTLOADER := true
+TARGET_NO_RADIOIMAGE := true
 
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
@@ -39,11 +46,7 @@ BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUEDROID_VENDOR_CONF := $(LOCAL_PATH)/bluetooth/libbt_vndcfg.txt
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(LOCAL_PATH)/bluetooth
 
-# Bootloader
-TARGET_OTA_ASSERT_DEVICE := klimtlte
-
 # Camera
-# COMMON_GLOBAL_CFLAGS += -DUSE_MEMORY_HEAP_ION
 BOARD_NEEDS_MEMORYHEAPION := true
 COMMON_GLOBAL_CFLAGS += -DDISABLE_HW_ID_MATCH_CHECK
 COMMON_GLOBAL_CFLAGS += -DSAMSUNG_CAMERA_HARDWARE
@@ -58,24 +61,12 @@ COMMON_GLOBAL_CFLAGS += -DFORCE_SCREENSHOT_CPU_PATH
 # Kernel
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_PAGESIZE := 2048
-TARGET_KERNEL_CONFIG := klimtlte_01_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/klimtwifi
-# TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.6
-# KERNEL_TOOLCHAIN := /home/cmbuild/android/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin
-
-# Battery
-BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
-BOARD_BATTERY_DEVICE_NAME := battery
-BOARD_CHARGER_SHOW_PERCENTAGE := true
-
-# Bootloader
-TARGET_BOOTLOADER_BOARD_NAME := universal5420
-TARGET_NO_BOOTLOADER := true
-TARGET_NO_RADIOIMAGE := true
+TARGET_KERNEL_CONFIG := klimtlte_00_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/klimtlte
 
 # FIMG2D
 BOARD_USES_SKIA_FIMGAPI := true
-BOARD_USES_NEON_BLITANTIH := true
+#BOARD_USES_NEON_BLITANTIH := true
 
 # Graphics
 USE_OPENGL_RENDERER := true
@@ -88,14 +79,14 @@ BOARD_USES_HWC_SERVICES := true
 # Include path
 TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include
 
-# Hardware
+# Hardware TO BE REMOVED/FIXED
 BOARD_HARDWARE_CLASS += device/samsung/klimtlte/cmhw
 
 # Init
 TARGET_NR_SVC_SUPP_GIDS := 20
 
 # Media
-COMMON_GLOBAL_CFLAGS += -DUSE_NATIVE_SEC_NV12TILED # use format from fw/native
+COMMON_GLOBAL_CFLAGS += -DUSE_NATIVE_SEC_NV12TILED 
 COMMON_GLOBAL_CFLAGS += -DWIDEVINE_PLUGIN_PRE_NOTIFY_ERROR
 
 # OpenMAX Video
@@ -132,6 +123,7 @@ TARGET_RECOVERY_PIXEL_FORMAT := BGRA_8888
 TARGET_USERIMAGES_USE_EXT4 := true
 BOARD_RECOVERY_SWIPE := true
 RECOVERY_GRAPHICS_USE_LINELENGTH := true
+TARGET_OTA_ASSERT_DEVICE := klimtlte
 
 # Scaler
 BOARD_USES_SCALER := true
@@ -162,7 +154,7 @@ BOARD_USES_SYNC_MODE_FOR_MEDIA := true
 ENABLE_WEBGL := true
 
 # WFD
-BOARD_USES_WFD_SERVICE := true
+#BOARD_USES_WFD_SERVICE := true
 BOARD_USES_WFD := true
 
 # Wifi
@@ -176,13 +168,6 @@ BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_bcmdhd
 WIFI_DRIVER_FW_PATH_PARAM        := "/sys/module/dhd/parameters/firmware_path"
 WIFI_DRIVER_FW_PATH_STA          := "/system/etc/wifi/bcmdhd_sta.bin"
 WIFI_DRIVER_FW_PATH_AP           := "/system/etc/wifi/bcmdhd_apsta.bin"
-
-# Radio
-#BOARD_RIL_CLASS := ../../../device/samsung/klimtlte/ril
-
-# RIL
-#BOARD_PROVIDES_LIBRIL := true
-#BOARD_MODEM_TYPE := xmm6262
 
 # inherit from the proprietary version
 -include vendor/samsung/klimtlte/BoardConfigVendor.mk
