@@ -34,6 +34,10 @@ TARGET_CPU_SMP := true
 BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
 BOARD_BATTERY_DEVICE_NAME := battery
 BOARD_CHARGER_SHOW_PERCENTAGE := true
+BOARD_CHARGER_ENABLE_SUSPEND := true
+
+# Bionic
+TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
 
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := universal5420
@@ -149,6 +153,9 @@ BOARD_SEPOLICY_UNION += \
 
 # SurfaceFlinger
 BOARD_USES_SYNC_MODE_FOR_MEDIA := true
+
+# Vold
+TARGET_USE_CUSTOM_LUN_FILE_PATH := /sys/class/android_usb/android0/f_mass_storage/lun0/file
 
 # Webkit
 ENABLE_WEBGL := true
