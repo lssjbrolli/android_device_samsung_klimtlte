@@ -207,3 +207,6 @@ $(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-dalv
 
 # call the proprietary setup
 $(call inherit-product-if-exists, vendor/samsung/klimtlte/klimtlte-vendor.mk)
+
+# call exynos5
+$(call inherit-product-if-exists, hardware/samsung_slsi/exynos5-insignal/exynos5.mk)

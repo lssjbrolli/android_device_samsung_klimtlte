@@ -7,16 +7,15 @@ vendor/firmware/srp_vliw.bin
 vendor/firmware/bcm4350_V0301.0609.hcd
 
 # Camera
-lib/hw/camera.universal5420.so:lib/hw/camera.vendor.universal5420.so
-lib/libak09911c.so
-lib/libarcsoft_flawlessface2.so
-lib/libarcsoft_night_shot_ex.so
-lib/libarcsoft_panorama_burstcapture.so
-lib/libarcsoft_picaction.so
-lib/libarcsoft_sensorndk.so
-lib/libexynoscamera.so
-lib/libsecnativefeature.so
-lib/libvdis.so
+#lib/hw/camera.universal5420.so:lib/hw/camera.vendor.universal5420.so
+#lib/libarcsoft_flawlessface2.so
+#lib/libarcsoft_night_shot_ex.so
+#lib/libarcsoft_panorama_burstcapture.so
+#lib/libarcsoft_picaction.so
+#lib/libarcsoft_sensorndk.so
+#lib/libexynoscamera.so
+#lib/libsecnativefeature.so
+#lib/libvdis.so
 
 # DRM
 lib/libstagefright_hdcp.so
@@ -35,6 +34,8 @@ etc/gps.conf
 etc/gps.xml
 lib/hw/gps.default.so
 lib/libwrappergps.so
+lib/libsec-ril.so
+lib/libsecril-client.so
 
 # Media
 vendor/firmware/fimc_is_fw2_IMX134_EEPROM.bin
@@ -72,6 +73,7 @@ bin/scranton_RD
 
 # Sensors
 lib/hw/sensors.universal5420.so
+lib/libak09911c.so
 
 # Widevine
 vendor/lib/libwvm.so
